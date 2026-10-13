@@ -1,4 +1,4 @@
-# iPad -> tablette graphique (USB)
+﻿# iPad -> tablette graphique (USB)
 
 L'iPad affiche l'ecran du PC et le stylet pilote Windows comme une vraie tablette graphique
 (stylet Windows Ink : pression et inclinaison si l'Apple Pencil les fournit). Tout passe par le cable USB.
@@ -19,7 +19,8 @@ Compte Apple gratuit : l'app expire au bout de **7 jours** -> la reinstaller ave
 
 ## Utilisation
 1. Brancher l'iPad, ouvrir l'app Tablette.
-2. Double-cliquer `lancer.bat` (ou `python pc/serveur.py`).
+2. Double-cliquer le raccourci **Tablette iPad** du bureau (= `lancer.bat`). Il redemarre tout seul si Windows coupe la capture. Fermer la fenetre pour arreter.
 
 Options : `--ecran 1` (2e ecran), `--lister`, `--qualite 75`, `--largeur 1920`, `--fps 60`,
 `--pression 0.6` (pression fixe quand le stylet n'en donne pas), `--stats`.
+
