@@ -1,0 +1,35 @@
+name: App iPad
+
+on:
+  push:
+    paths: ["ios/**", ".github/workflows/app-ipad.yml"]
+  workflow_dispatch:
+
+jobs:
+  compiler:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generer le projet Xcode
+        run: |
+          brew install xcodegen
+          cd ios && xcodegen generate
+
+      - name: Compiler (sans signature, Sideloadly signera)
+        run: |
+          cd ios
+          xcodebuild -project Tablette.xcodeproj -scheme Tablette -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
+
+      - name: Fabriquer le .ipa
+        run: |
+          mkdir -p Payload
+          cp -R ios/build/Build/Products/Release-iphoneos/Tablette.app Payload/
+          zip -qr Tablette.ipa Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tablette-ipa
+          path: Tablette.ipa
