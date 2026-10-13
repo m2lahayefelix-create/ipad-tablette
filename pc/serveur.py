@@ -45,6 +45,9 @@ class Session:
         self.stylet = Stylet()
         self.actif = True
         self.signale = set()
+        self.pression_max = -1.0
+        self.pression_trait = -1.0
+        self.traits_affiches = 0
 
     # ---------- iPad -> PC : traits du stylet ----------
     def boucle_traits(self):
@@ -63,7 +66,10 @@ class Session:
         px = self.gauche + min(max(x, 0.0), 1.0) * (self.largeur - 1)
         py = self.haut + min(max(y, 0.0), 1.0) * (self.hauteur - 1)
         self.signaler(genre, pression)
-        if pression < 0:  # pas de pression fournie par l'iPad (doigt ou stylet simple)
+        self.pression_max = max(self.pression_max, pression)
+        self.pression_trait = max(self.pression_trait, pression)
+        # Pas de pression (doigt), ou stylet "compatible Pencil" qui envoie toujours 0 : pression fixe.
+        if pression < 0 or self.pression_max < 0.05:
             pression = self.args.pression
         # inclinaison : altitude = pi/2 quand le stylet est vertical
         incl = math.degrees(math.pi / 2 - altitude)
@@ -74,6 +80,11 @@ class Session:
             self.stylet.bouger(px, py, pression, tx, ty)
         elif phase in (3, 4):
             self.stylet.lever(px, py)
+            if self.traits_affiches < 3:
+                self.traits_affiches += 1
+                info = "aucune" if self.pression_trait < 0 else f"{self.pression_trait:.2f}"
+                print(f"  Trait termine - pression max recue : {info}")
+            self.pression_trait = -1.0
         elif phase == 0 and not self.stylet.en_contact:
             self.stylet.survol(px, py)
 
