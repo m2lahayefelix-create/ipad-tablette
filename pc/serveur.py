@@ -45,7 +45,8 @@ class Session:
         self.stylet = Stylet()
         self.actif = True
         self.signale = set()
-        self.pression_max = -1.0
+        self.pression_min = 1.0
+        self.pression_max = 0.0
         self.pression_trait = -1.0
         self.traits_affiches = 0
 
@@ -66,10 +67,13 @@ class Session:
         px = self.gauche + min(max(x, 0.0), 1.0) * (self.largeur - 1)
         py = self.haut + min(max(y, 0.0), 1.0) * (self.hauteur - 1)
         self.signaler(genre, pression)
-        self.pression_max = max(self.pression_max, pression)
         self.pression_trait = max(self.pression_trait, pression)
-        # Pas de pression (doigt), ou stylet "compatible Pencil" qui envoie toujours 0 : pression fixe.
-        if pression < 0 or self.pression_max < 0.05:
+        if pression > 0:
+            self.pression_min = min(self.pression_min, pression)
+            self.pression_max = max(self.pression_max, pression)
+        # Pas de pression (doigt), ou stylet "compatible Pencil" qui envoie toujours la meme valeur
+        # (0 ou 0.12...) : pression fixe, tant qu'on n'a pas vu la pression varier vraiment.
+        if pression < 0 or self.pression_max - self.pression_min < 0.15:
             pression = self.args.pression
         # inclinaison : altitude = pi/2 quand le stylet est vertical
         incl = math.degrees(math.pi / 2 - altitude)
