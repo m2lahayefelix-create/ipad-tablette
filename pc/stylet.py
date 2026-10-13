@@ -101,8 +101,14 @@ class Stylet:
         if not self.device:
             raise OSError(f"CreateSyntheticPointerDevice a echoue ({ctypes.get_last_error()})")
         self.en_contact = False
+        # Windows lit les coordonnees du stylet injecte depuis le coin haut-gauche du bureau virtuel
+        # (tous les ecrans), pas depuis l'ecran principal : on compense.
+        self.decalage_x = user32.GetSystemMetrics(76)  # SM_XVIRTUALSCREEN
+        self.decalage_y = user32.GetSystemMetrics(77)  # SM_YVIRTUALSCREEN
 
     def _injecter(self, x, y, flags, pression=0.0, tilt_x=0, tilt_y=0, bouton=POINTER_CHANGE_NONE):
+        x -= self.decalage_x
+        y -= self.decalage_y
         info = POINTER_TYPE_INFO()
         info.type = PT_PEN
         pen = info.penInfo
